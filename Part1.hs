@@ -14,8 +14,9 @@ module Part1
 -- и числа 123
 --
 -- На вход функции подаются неотрицательные числа
+gf x = x*3+123
 prob1 :: Int -> Int
-prob1 x = error "Implement me!"
+prob1 x = gf x `mod` 65537 
 
 
 ------------------------------------------------------------
@@ -25,8 +26,8 @@ prob1 x = error "Implement me!"
 -- * нечётные числа увеличивает втрое и добавляет единицу
 -- * чётные числа делит на два
 prob2 :: Integer -> Integer
-prob2 n = error "Implement me!"
-
+prob2 x = if (x `mod` 2 == 1) then (x*3+1)
+		else (x `div` 2)
 
 ------------------------------------------------------------
 -- PROBLEM #3
@@ -49,7 +50,12 @@ prob2 n = error "Implement me!"
 --    3 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1
 --
 -- Для любой функции step и n == 1 ответом будет 0.
+--stepcount x = x+1
 prob3 :: (Integer -> Integer) -> Integer -> Integer
+--prob3 step 0 = 0
+--prob3 step n = if (n == 1) then (0)
+--		else prob3 step (step n)
+--error "Implement me!"
 prob3 step n = error "Implement me!"
 
 
@@ -68,7 +74,11 @@ prob3 step n = error "Implement me!"
 --
 -- Число n по модулю не превосходит 10^5
 prob4 :: Integer -> Integer
-prob4 n = error "Implement me!"
+prob4 0 = 1
+prob4 1 = 1
+--prob4 -1 = 0
+--prob4 -2 = 1
+prob4 n = prob4 (n-1) + prob4 (n-2)
 
 
 ------------------------------------------------------------

@@ -52,11 +52,13 @@ prob2 x = if (x `mod` 2 == 1) then (x*3+1)
 -- Для любой функции step и n == 1 ответом будет 0.
 --stepcount x = x+1
 prob3 :: (Integer -> Integer) -> Integer -> Integer
---prob3 step 0 = 0
---prob3 step n = if (n == 1) then (0)
---		else prob3 step (step n)
---error "Implement me!"
-prob3 step n = error "Implement me!"
+
+func3 step n acc = if (step n == 1) then (acc+1)
+                   else (func3 step (step n) (acc+1))
+
+prob3 step 1 = 0
+prob3 step n = func3 step n 0
+--prob3 step n = error "Implement me!"
 
 
 ------------------------------------------------------------
@@ -78,7 +80,8 @@ prob4 0 = 1
 prob4 1 = 1
 --prob4 -1 = 0
 --prob4 -2 = 1
-prob4 n = prob4 (n-1) + prob4 (n-2)
+prob4 n = if (n<0) then prob4 (n+2) - prob4 (n+1)
+                   else prob4 (n-2) + prob4 (n-1)
 
 
 ------------------------------------------------------------
@@ -89,5 +92,13 @@ prob4 n = prob4 (n-1) + prob4 (n-2)
 --
 -- Числа n и k положительны и не превосходят 10^8.
 -- Число 1 не считается простым числом
+sieve :: [Integer] -> [Integer]
+sieve [] = []
+sieve (x:xs) = x : (sieve $ filter (\ y -> (y `mod` x) /= 0) xs )
+
+factorize :: Integer -> [Integer]
+factorize n = filter (\ x -> (n `mod` x)==0) $ sieve [2,3..n `div` 2]
+
 prob5 :: Integer -> Integer -> Bool
-prob5 = error "Implement me!"
+prob5 n k = if maximum(factorize n ++ [k]) == k && length (filter (/=k) (factorize n ++ [k])) /= 0 then True
+                                                                                                   else False

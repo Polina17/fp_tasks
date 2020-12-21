@@ -5,7 +5,9 @@ module Part3 where
 --
 -- Проверить, является ли число N простым (1 <= N <= 10^9)
 prob18 :: Integer -> Bool
-prob18 = error "Implement me!"
+prob18 1 = False
+prob18 n = all check [2..n `div` 2]
+            where check x = n `mod` x /= 0
 
 ------------------------------------------------------------
 -- PROBLEM #19
@@ -13,8 +15,20 @@ prob18 = error "Implement me!"
 -- Вернуть список всех простых делителей и их степеней в
 -- разложении числа N (1 <= N <= 10^9). Простые делители
 -- должны быть расположены по возрастанию
+sieve :: [Integer] -> [Integer]
+sieve [] = []
+sieve (x:xs) = x : (sieve $ filter (\ y -> (y `mod` x) /= 0) xs )
+
+factorize :: Integer -> [Integer]
+factorize n = filter (\ x -> (n `mod` x)==0) $ sieve [2,3..n `div` 2]
+
+getPow :: Integer -> Integer -> Integer -> Int
+getPow n f ff | (n `mod` ff) /= 0 = 0
+           | otherwise = 1 + getPow n  f (f *ff)
+
 prob19 :: Integer -> [(Integer, Int)]
-prob19 = error "Implement me!"
+prob19 1 = []
+prob19 n = if (map (\ f -> (f, getPow n f f)) $ factorize n) == [] then [(n, 1)] else map (\ f -> (f, getPow n f f)) $ factorize n
 
 ------------------------------------------------------------
 -- PROBLEM #20
@@ -22,16 +36,29 @@ prob19 = error "Implement me!"
 -- Проверить, является ли число N совершенным (1<=N<=10^10)
 -- Совершенное число равно сумме своих делителей (меньших
 -- самого числа)
+divArr' :: Integer -> Integer -> [Integer]
+divArr' n k | (k > (n `div` 2)) = []
+             | (n `mod` k) == 0 = k : divArr' n (k+1)
+             | otherwise =  divArr' n (k+1)
+
+divArr :: Integer -> [Integer]
+divArr n = divArr' n 1
+
 prob20 :: Integer -> Bool
-prob20 = error "Implement me!"
+prob20 n = (n == (foldl (+) 0 (divArr n)))
 
 ------------------------------------------------------------
 -- PROBLEM #21
 --
 -- Вернуть список всех делителей числа N (1<=N<=10^10) в
 -- порядке возрастания
+divArr'' :: Integer -> Integer -> [Integer]
+divArr'' n k | (k > (n `div` 2)) = [n]
+             | (n `mod` k) == 0 = k : divArr'' n (k+1)
+             | otherwise =  divArr'' n (k+1)
+
 prob21 :: Integer -> [Integer]
-prob21 = error "Implement me!"
+prob21 n = divArr'' n 1
 
 ------------------------------------------------------------
 -- PROBLEM #22
@@ -40,6 +67,7 @@ prob21 = error "Implement me!"
 -- заданной строки (списка символов)
 prob22 :: String -> Integer
 prob22 = error "Implement me!"
+
 
 ------------------------------------------------------------
 -- PROBLEM #23
@@ -58,8 +86,12 @@ prob23 = error "Implement me!"
 -- Проверить, что число N - треугольное, т.е. его можно
 -- представить как сумму чисел от 1 до какого-то K
 -- (1 <= N <= 10^10)
+triangular :: Integer -> Float
+triangular x = sqrt((8.0*(fromInteger x)) + 1)
+
 prob24 :: Integer -> Bool
-prob24 = error "Implement me!"
+prob24 1 = True
+prob24 n = if (round(triangular n))^2 == 8*n + 1 then True else False
 
 ------------------------------------------------------------
 -- PROBLEM #25
@@ -67,7 +99,12 @@ prob24 = error "Implement me!"
 -- Проверить, что запись числа является палиндромом (т.е.
 -- читается одинаково слева направо и справа налево)
 prob25 :: Integer -> Bool
-prob25 = error "Implement me!"
+prob25 x = reversal x == x
+
+reversal :: Integral a => a-> a
+reversal = go 0
+  where go a 0 = a
+        go a b = let (q,r) = b `quotRem` 10 in go (a*10 + r) q
 
 ------------------------------------------------------------
 -- PROBLEM #26
@@ -75,8 +112,11 @@ prob25 = error "Implement me!"
 -- Проверить, что два переданных числа - дружественные, т.е.
 -- сумма делителей одного (без учёта самого числа) равна
 -- другому, и наоборот
+divisors :: Integer -> [Integer]
+divisors d = filter ((== 0) . (mod d)) [1..d]
+
 prob26 :: Integer -> Integer -> Bool
-prob26 = error "Implement me!"
+prob26 n k = if foldr (+) 0 (divisors n) == foldr (+) 0 (divisors k) then True else False
 
 ------------------------------------------------------------
 -- PROBLEM #27
@@ -101,7 +141,7 @@ prob28 = error "Implement me!"
 -- Найти наибольшее число-палиндром, которое является
 -- произведением двух K-значных (1 <= K <= 3)
 prob29 :: Int -> Int
-prob29 k = error "Implement me!"
+prob29 n = let pal n = (let s = show n in s == reverse s) in maximum [k | i <- [1..3], j <- [i..3], let k = i * j, pal k]
 
 ------------------------------------------------------------
 -- PROBLEM #30

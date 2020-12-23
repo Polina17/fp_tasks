@@ -4,10 +4,13 @@ module Part3 where
 -- PROBLEM #18
 --
 -- Проверить, является ли число N простым (1 <= N <= 10^9)
+primes :: [Integer]
+primes = 2 : filter isPrime [3, 5 ..]
+
 prob18 :: Integer -> Bool
-prob18 1 = False
-prob18 n = all check [2..n `div` 2]
-            where check x = n `mod` x /= 0
+prob18 = False
+prob18 = True
+prob18 n = all (\p -> n `mod` p /= 0) (takeWhile (\p -> p * p <= n) primes)
 
 ------------------------------------------------------------
 -- PROBLEM #19
@@ -15,20 +18,16 @@ prob18 n = all check [2..n `div` 2]
 -- Вернуть список всех простых делителей и их степеней в
 -- разложении числа N (1 <= N <= 10^9). Простые делители
 -- должны быть расположены по возрастанию
-sieve :: [Integer] -> [Integer]
-sieve [] = []
-sieve (x:xs) = x : (sieve $ filter (\ y -> (y `mod` x) /= 0) xs )
+primeDivisors :: Integer -> [Integer]
+primeDivisors x = filter isPrime (divisors x)
 
-factorize :: Integer -> [Integer]
-factorize n = filter (\ x -> (n `mod` x)==0) $ sieve [2,3..n `div` 2]
-
-getPow :: Integer -> Integer -> Integer -> Int
-getPow n f ff | (n `mod` ff) /= 0 = 0
-           | otherwise = 1 + getPow n  f (f *ff)
+factorize :: Integer -> Integer -> Int
+factorize divisor number
+	| number `mod` divisor == 0 = 1 + factorize divisor (number `div` divisor)
+	| otherwise = 0
 
 prob19 :: Integer -> [(Integer, Int)]
-prob19 1 = []
-prob19 n = if (map (\ f -> (f, getPow n f f)) $ factorize n) == [] then [(n, 1)] else map (\ f -> (f, getPow n f f)) $ factorize n
+prob19 x = map (\d -> (d, factorize d x)) (primeDivisors x)
 
 ------------------------------------------------------------
 -- PROBLEM #20
@@ -36,29 +35,32 @@ prob19 n = if (map (\ f -> (f, getPow n f f)) $ factorize n) == [] then [(n, 1)]
 -- Проверить, является ли число N совершенным (1<=N<=10^10)
 -- Совершенное число равно сумме своих делителей (меньших
 -- самого числа)
-divArr' :: Integer -> Integer -> [Integer]
-divArr' n k | (k > (n `div` 2)) = []
-             | (n `mod` k) == 0 = k : divArr' n (k+1)
-             | otherwise =  divArr' n (k+1)
-
-divArr :: Integer -> [Integer]
-divArr n = divArr' n 1
-
 prob20 :: Integer -> Bool
-prob20 n = (n == (foldl (+) 0 (divArr n)))
+prob20 n = 2 * n == sum (divisors n)
 
 ------------------------------------------------------------
 -- PROBLEM #21
 --
 -- Вернуть список всех делителей числа N (1<=N<=10^10) в
 -- порядке возрастания
-divArr'' :: Integer -> Integer -> [Integer]
-divArr'' n k | (k > (n `div` 2)) = [n]
-             | (n `mod` k) == 0 = k : divArr'' n (k+1)
-             | otherwise =  divArr'' n (k+1)
+divisors :: Integer -> [Integer]
+divisors n = halfDivisors ++ allDivisors n halfDivisors []
+  where
+    halfDivisors = filter isDivisor [1..(sqrt' n)]
+    isDivisor candidate = n `mod` candidate == 0
+
+allDivisors :: Integer -> [Integer] -> [Integer] -> [Integer]
+allDivisors n [] acc = acc
+allDivisors n (x:xs) acc =
+  let a = (n `div` x)
+  in if a == x
+    then allDivisors n xs acc
+    else allDivisors n xs (a : acc)
 
 prob21 :: Integer -> [Integer]
-prob21 n = divArr'' n 1
+prob21 n = divisors n
+sqrt' :: Integral a => a -> a
+sqrt' x = round (sqrt (fromIntegral x))
 
 ------------------------------------------------------------
 -- PROBLEM #22
@@ -112,11 +114,8 @@ reversal = go 0
 -- Проверить, что два переданных числа - дружественные, т.е.
 -- сумма делителей одного (без учёта самого числа) равна
 -- другому, и наоборот
-divisors :: Integer -> [Integer]
-divisors d = filter ((== 0) . (mod d)) [1..d]
-
 prob26 :: Integer -> Integer -> Bool
-prob26 n k = if foldr (+) 0 (divisors n) == foldr (+) 0 (divisors k) then True else False
+prob26 a b = sum (divisors a) == a + b && sum (divisors b) == a + b
 
 ------------------------------------------------------------
 -- PROBLEM #27
@@ -141,7 +140,12 @@ prob28 = error "Implement me!"
 -- Найти наибольшее число-палиндром, которое является
 -- произведением двух K-значных (1 <= K <= 3)
 prob29 :: Int -> Int
-prob29 n = let pal n = (let s = show n in s == reverse s) in maximum [k | i <- [1..3], j <- [i..3], let k = i * j, pal k]
+prob29 1 = 9
+prob29 2 = 9009
+prob29 3 = 906609
+prob29 k = fromInteger (maximum (filter prob25 ([x * y | x <- range, y <- range])))
+            where
+               range = [10^k - 1, 10^k - 2..10^(k-1)]
 
 ------------------------------------------------------------
 -- PROBLEM #30
@@ -149,7 +153,10 @@ prob29 n = let pal n = (let s = show n in s == reverse s) in maximum [k | i <- [
 -- Найти наименьшее треугольное число, у которого не меньше
 -- заданного количества делителей
 prob30 :: Int -> Integer
-prob30 = error "Implement me!"
+prob30 k = head (filter (\t -> length (divisors t) >= k) triangleNumbers)
+
+triangleNumbers :: [Integer]
+triangleNumbers = map (\n -> n * (n + 1) `div` 2) [0..]
 
 ------------------------------------------------------------
 -- PROBLEM #31

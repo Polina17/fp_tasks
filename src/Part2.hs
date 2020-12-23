@@ -2,6 +2,7 @@ module Part2 where
 
 import Part2.Types
 import Data.Maybe
+import Data.Function ((&))
 
 ------------------------------------------------------------
 -- PROBLEM #6
@@ -108,7 +109,16 @@ prob13 x tree | getRoot tree == x = Just tree
 -- Заменить () на числа в порядке обхода "правый, левый,
 -- корень", начиная с 1
 prob14 :: Tree () -> Tree Int
-prob14 = error "Implement me!"
+prob14 t = case enumerate (Just t) 1 of
+    (Just enumerated, _) -> enumerated
+
+enumerate :: Maybe (Tree ()) -> Int -> (Maybe (Tree Int), Int)
+enumerate Nothing i = (Nothing, i)
+enumerate (Just (Tree l () r)) i = (Just $ Tree l' current r', current + 1)
+    where
+        (r', afterRight) = enumerate r i
+        (l', afterLeft) = enumerate l afterRight
+        current = afterLeft
 
 ------------------------------------------------------------
 -- PROBLEM #15
@@ -116,7 +126,11 @@ prob14 = error "Implement me!"
 -- Выполнить вращение дерева влево относительно корня
 -- (https://en.wikipedia.org/wiki/Tree_rotation)
 prob15 :: Tree a -> Tree a
-prob15 = error "Implement me!"
+prob15 tree = maybe tree leftRotation $ tree & right
+    where
+        leftRotation rightSubTree = rightSubTree { left = Just oldRoot }
+            where
+                oldRoot = tree { right = rightSubTree & left }
 
 ------------------------------------------------------------
 -- PROBLEM #16
@@ -124,7 +138,11 @@ prob15 = error "Implement me!"
 -- Выполнить вращение дерева вправо относительно корня
 -- (https://en.wikipedia.org/wiki/Tree_rotation)
 prob16 :: Tree a -> Tree a
-prob16 = error "Implement me!"
+prob16 tree = maybe tree rightRotation $ tree & left
+    where
+        rightRotation leftSubTree = leftSubTree { right = Just oldRoot }
+            where
+                oldRoot = tree { left = leftSubTree & right }
 
 ------------------------------------------------------------
 -- PROBLEM #17

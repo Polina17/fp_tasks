@@ -125,8 +125,16 @@ prob26 a b = sum (divisors a) == a + b && sum (divisors b) == a + b
 --
 -- Найти в списке два числа, сумма которых равна заданному.
 -- Длина списка не превосходит 500
-prob27 :: Int -> [Int] -> Maybe (Int, Int)
-prob27 = error "Implement me!"
+prob27 :: Int -> [Int] -> Maybe(Int, Int)
+prob27 _ [] = Nothing
+prob27 sum (x:xs) = case findComplement sum x xs of
+    Nothing -> prob27 sum xs
+    (Just compl) -> Just (x, compl)
+  where
+    findComplement _ _ [] = Nothing
+    findComplement sum item (x:xs)
+      | item + x == sum = Just x
+      | otherwise = findComplement sum item xs
 
 ------------------------------------------------------------
 -- PROBLEM #28

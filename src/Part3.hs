@@ -7,10 +7,13 @@ module Part3 where
 primes :: [Integer]
 primes = 2 : filter isPrime [3, 5 ..]
 
+isPrime :: Integer -> Bool
+isPrime 1 = False
+isPrime 2 = True
+isPrime n = all (\p -> n `mod` p /= 0) (takeWhile (\p -> p * p <= n) primes)
+
 prob18 :: Integer -> Bool
-prob18 = False
-prob18 = True
-prob18 n = all (\p -> n `mod` p /= 0) (takeWhile (\p -> p * p <= n) primes)
+prob18 n = isPrime n
 
 ------------------------------------------------------------
 -- PROBLEM #19

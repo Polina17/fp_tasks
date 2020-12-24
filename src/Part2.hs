@@ -151,4 +151,4 @@ prob16 tree = maybe tree rightRotation $ tree & left
 -- разница высот поддеревьев не превосходила по модулю 1
 -- (например, преобразовать в полное бинарное дерево)
 prob17 :: Tree a -> Tree a
-prob17 = error "Implement me!"
+prob17 = error "help"

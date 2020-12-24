@@ -76,12 +76,14 @@ prob3 step n = func3 step n 0
 --
 -- Число n по модулю не превосходит 10^5
 prob4 :: Integer -> Integer
-prob4 0 = 1
-prob4 1 = 1
---prob4 -1 = 0
---prob4 -2 = 1
-prob4 n = if (n<0) then prob4 (n+2) - prob4 (n+1)
-                   else prob4 (n-2) + prob4 (n-1)
+prob4 n
+  | n == (-1) = 0
+  | n < 0 = prob4 (-n - 2) * (if even n then 1 else -1)
+  | otherwise = prob4iter n 0 1
+
+prob4iter :: Integer -> Integer -> Integer -> Integer
+prob4iter 0 a b = b
+prob4iter i a b = prob4iter (i - 1) b (a + b)
 
 
 ------------------------------------------------------------
@@ -92,13 +94,30 @@ prob4 n = if (n<0) then prob4 (n+2) - prob4 (n+1)
 --
 -- Числа n и k положительны и не превосходят 10^8.
 -- Число 1 не считается простым числом
-sieve :: [Integer] -> [Integer]
-sieve [] = []
-sieve (x:xs) = x : (sieve $ filter (\ y -> (y `mod` x) /= 0) xs )
 
-factorize :: Integer -> [Integer]
-factorize n = filter (\ x -> (n `mod` x)==0) $ sieve [2,3..n `div` 2]
+isPrime :: Integer -> Bool
+primes :: [Integer]
+
+isPrime n | n < 2 = False
+isPrime n = all (\p -> n `mod` p /= 0) . takeWhile ((<= n) . (^ 2)) $ primes
+primes = 2 : filter isPrime [3..]
+
+primeFactors :: Integer -> [Integer]
+primeFactors n = iter n primes where
+    iter n (p:_) | n < p^2 = [n | n > 1]
+    iter n ps@(p:ps') =
+        let (d, r) = n `divMod` p
+        in if r == 0 then p : iter d ps else iter n ps'
 
 prob5 :: Integer -> Integer -> Bool
-prob5 n k = if maximum(factorize n ++ [k]) == k && length (filter (/=k) (factorize n ++ [k])) /= 0 then True
-                                                                                                   else False
+prob5 n k = all (< k) (getPrimeDivisors n)
+    where
+        getPrimeDivisors :: Integer -> [Integer]
+        getPrimeDivisors = getDivisorsWithCurrent 2
+
+        getDivisorsWithCurrent :: Integer -> Integer -> [Integer]
+        getDivisorsWithCurrent _ 1 = []
+        getDivisorsWithCurrent divisor number
+            | divisor * divisor > number = [number]
+            | number `mod` divisor == 0 = divisor : getDivisorsWithCurrent divisor (number `div` divisor)
+            | otherwise = getDivisorsWithCurrent (divisor + 1) number

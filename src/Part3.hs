@@ -71,7 +71,7 @@ sqrt' x = round (sqrt (fromIntegral x))
 -- Подсчитать произведение количеств букв i в словах из
 -- заданной строки (списка символов)
 prob22 :: String -> Integer
-prob22 = error "Implement me!"
+prob22 n = foldl1 (*) (map toInteger (map (length) (map (filter (=='i'))(words n))))
 
 
 ------------------------------------------------------------
